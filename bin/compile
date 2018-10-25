@@ -36,6 +36,8 @@ APT_TRUSTED_DIR="$CACHE_DIR/apt/trusted.gpg.d"
 
 APT_SOURCES="$APT_SOURCELIST_DIR/sources.list"
 
+EXISTING_TRUSTED_DIR="/etc/apt/trusted.gpg.d"
+
 if [ -f $APT_CACHE_DIR/Aptfile ] && cmp -s $BUILD_DIR/Aptfile $APT_CACHE_DIR/Aptfile ; then
   # Old Aptfile is the same as new
   topic "Reusing cache"
@@ -49,7 +51,11 @@ else
   mkdir -p "$APT_SOURCELIST_DIR"   # make dir for sources
   mkdir -p "$APT_TRUSTED_DIR"   # make dir for trusted keys
   cp -f "$BUILD_DIR/Aptfile" "$APT_CACHE_DIR/Aptfile"
-  cp -f /etc/apt/trusted.gpg.d/* "$APT_TRUSTED_DIR" # copy existing keys to new trusted keys dir
+
+  if [[ -d $EXISTING_TRUSTED_DIR && -n "$(ls -A $EXISTING_TRUSTED_DIR)" ]]; then
+    cp -f /etc/apt/trusted.gpg.d/* "$APT_TRUSTED_DIR" # copy existing keys to new trusted keys dir
+  fi
+
   cat "/etc/apt/sources.list" > "$APT_SOURCES"    # no cp here
 
   # add custom repositories from Aptfile to sources.list
