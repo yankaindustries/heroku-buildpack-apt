@@ -29,6 +29,13 @@ function indent() {
   esac
 }
 
+for env in $(cat testfile |grep -s -e '^:env:'| sed 's/^:env:\(.*\)\s*$/\1/g'); do
+  name=$(echo "$env"|sed 's/^\([^:]*\):.*$/\1/')
+  value=$(echo "$env"|sed 's/^[^:]*://')
+
+  export "$(basename "$name")"="$value"
+done
+
 # Store which STACK we are running on in the cache to bust the cache if it changes
 if [ -f $CACHE_DIR/.apt/STACK ]; then
   CACHED_STACK=$(cat "$CACHE_DIR/.apt/STACK")
